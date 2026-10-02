@@ -1,0 +1,155 @@
+<body>
+    <canvas id="c"></canvas>
+    <div id="ui">
+        <h1>SparkFall</h1>
+        <p>A tiny fireworks show</p>
+        <button id="button">Start</button>
+        <p>Left Click: Normal | Right Click: Giant</p>
+        <p id="count">Fireworks: 0</p>
+        <button id="set">Settings</button>
+        <div id="panel">
+            <p>Trails <button id="trail">On</button></p>
+            <p>Flash <button id="flash"></button></p>
+            <button id="close">Close</button>
+        </div>
+    </div>
+    <style>
+        body{margin:0; background:black; color:white; font-family:Arial; text-align:center; overflow:hidden}
+        canvas{position:fixed; left:0; top:0}
+        #ui{position:fixed; width:100%; top:10px}
+        button{padding:10px 35px; font-size:18px}
+        #panel{position:fixed; right:15px; top:55px; background:#111; padding:15px; display: none}
+    </style>
+    <script>
+        c.width=innerWidth
+        c.height=innerHeight
+        x=c.getContext("2d")
+        a=[]
+        h=0
+        r=0
+        X=0
+        Y=0
+        n=0
+        on=0
+        tr=1
+        fl=1
+        button.onclick=()=>{
+            z=new AudioContext
+            on=1
+            button.style.display="none"
+        }
+        onmousedown=e=>{
+            X=e.clientX
+            Y=e.clientY
+            if(!on)return
+            if(e.button==0){
+                h=1
+                f(X,Y)
+            }
+            if(e.button==2){
+                r=1
+                g(X,Y)
+            }
+        }
+        onmouseup=e=>{
+            if(e.button==0)h=0
+            if(e.button==2)r=0
+        }
+        onmousemove=e=>{
+            X=e.clientX
+            Y=e.clientY
+        }
+        oncontextmenu=e=>e.preventDefault()
+        f=(X,Y)=>{
+            n++
+            count.innerText="Fireworks: "+n
+            if(fl){
+                x.fillStyle="white"
+                x.beginPath()
+                x.arc(X,Y,5,0,6.28)
+                x.fill()
+            }
+            for(i=0;i<80;i++){
+                q=Math.random()*6.28
+                s=Math.random()*5+2
+                a.push({
+                    x:X,
+                    y:Y,
+                    dx:Math.cos(q)*s,
+                    dy:Math.sin(q)*s,
+                    R:Math.random()*255,
+                    G:Math.random()*255,
+                    B:Math.random()*255
+                })
+            }
+            o=z.createOscillator()
+            w=z.createGain()
+            o.connect(w)
+            w.connect(z.destination)
+            o.frequency.value=150
+            o.frequency.exponentialRampToValueAtTime(30,z.currentTime+.3)
+            w.gain.value=.2
+            w.gain.exponentialRampToValueAtTime(.01,z.currentTime+.3)
+            o.start()
+            o.stop(z.currentTime+.3)
+        }
+        set.onclick=()=>{
+            panel.style.display="block"
+        }
+        close.onclick=()=>{
+            panel.style.display="none"
+        }
+        trail.onclick=()=>{
+            tr=!tr
+            trail.innerText=tr?"On":"Off"
+        }
+        flash.onclick=()=>{
+            fl=!fl
+            flash.innerText=fl?"On":"Off"
+        }
+        g=(X,Y)=>{
+            n++
+            count.innerText="Fireworks: "+n
+            for(i=0;i<200;i++){
+                q=Math.random()*6.28
+                s=Math.random()*8+2
+                a.push({
+                    x:X,
+                    y:Y,
+                    dx:Math.cos(q)*s,
+                    dy:Math.sin(q)*s,
+                    R:Math.random()*255,
+                    G:Math.random()*255,
+                    B:Math.random()*255
+                })
+            }
+            o=z.createOscillator()
+            w=z.createGain()
+            o.connect(w)
+            w.connect(z.destination)
+            o.frequency.value=70
+            o.frequency.exponentialRampToValueAtTime(20,z.currentTime+.4)
+            o.start()
+            o.stop(z.currentTime+.4)
+        }
+        setInterval(()=>{
+            if(tr){
+                x.fillStyle="rgba(0,0,0,.15)"
+                x.fillRect(0,0,c.width,c.height)
+            }else{
+                x.clearRect(0,0,c.width,c.height)
+            }
+            if(on){
+                if(h)f(X,Y)
+                if(r)g(X,Y)
+            }
+        for(p of a){
+            p.x+=p.dx
+            p.y+=p.dy
+            p.dy+=.05
+            x.fillStyle="rgb("+p.R+","+p.G+","+p.B+")"
+            x.fillRect(p.x,p.y,2,2)
+        }
+        }, 30)
+    </script>
+</body>
